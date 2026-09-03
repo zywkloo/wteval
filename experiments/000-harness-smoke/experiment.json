@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "experiment_id": "000-harness-smoke",
+  "dataset": "tests/fixtures/examples",
+  "systems": ["always_default", "majority", "keyword"],
+  "metrics": ["classification", "forecast", "recommendation"],
+  "split": "holdout",
+  "description": "CI smoke: deterministic baselines on synthetic fixtures. Not a product-value result."
+}

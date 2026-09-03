@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "example_id": "syn-005",
+  "task_id": "feat/synthetic-policy-refactor",
+  "created_at": "2026-07-18T16:00:00Z",
+  "split": "train",
+  "features": {
+    "prompt_fingerprint": "sha256:synthetic-005",
+    "features_version": "task-features-v1",
+    "feature_snapshot": "Refactor the policy evaluator module after a failed check on glob patterns.",
+    "task_contract": {
+      "available_fields": [
+        "scope",
+        "off_limits",
+        "verification"
+      ],
+      "verification_declared": true
+    },
+    "repository_bucket": "python-cli",
+    "quota": {
+      "source": "fixture",
+      "source_confidence": "reported",
+      "providers": [
+        {
+          "name": "codex",
+          "remaining": 0.4,
+          "window": "5h"
+        }
+      ]
+    }
+  },
+  "labels": {
+    "work_kind": "execution",
+    "size": "m",
+    "risk": "medium",
+    "intended_sequence": [
+      "executor",
+      "verifier"
+    ],
+    "should_abstain": false,
+    "labeler": "synthetic",
+    "labeled_at": "2026-07-18T16:08:00Z"
+  },
+  "human_decision": {
+    "status": "override",
+    "override_reason": "needed a stronger reasoning tier"
+  },
+  "outcome": {
+    "schema_version": 1,
+    "decision_id": "dec-005",
+    "actual_route": {
+      "role": "executor",
+      "endpoint": "codex",
+      "model_tier": "balanced-coding",
+      "reasoning_tier": "medium"
+    },
+    "usage": {
+      "reported_tokens": 18000,
+      "api_equivalent_cost": null,
+      "subscription_quota_delta": 0.07,
+      "source": "fixture",
+      "source_confidence": "reported"
+    },
+    "result": {
+      "check": "pass",
+      "verify": "pass",
+      "repair_rounds": 1,
+      "replan": false,
+      "human_completed": true
+    }
+  }
+}

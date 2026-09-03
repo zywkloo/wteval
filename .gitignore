@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+env/
+
+# OS
+.DS_Store
+*.log
+
+# Private labeled data and local reports. Synthetic fixtures stay tracked.
+datasets/private/
+reports/local/
+reports/*/
+!reports/.gitkeep
+
+# Secrets and raw prompts
+*.secret.json
+.env
+.env.*

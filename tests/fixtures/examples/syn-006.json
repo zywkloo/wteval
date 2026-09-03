@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "example_id": "syn-006",
+  "task_id": "feat/synthetic-repair-ci",
+  "created_at": "2026-07-21T10:00:00Z",
+  "split": "train",
+  "features": {
+    "prompt_fingerprint": "sha256:synthetic-006",
+    "features_version": "task-features-v1",
+    "feature_snapshot": "Repair the failing test that broke after the glob-pattern change.",
+    "task_contract": {
+      "available_fields": [
+        "scope",
+        "off_limits",
+        "verification"
+      ],
+      "verification_declared": true
+    },
+    "repository_bucket": "python-cli",
+    "quota": {
+      "source": "fixture",
+      "source_confidence": "reported",
+      "providers": [
+        {
+          "name": "codex",
+          "remaining": 0.33,
+          "window": "5h"
+        }
+      ]
+    }
+  },
+  "labels": {
+    "work_kind": "repair",
+    "size": "s",
+    "risk": "medium",
+    "intended_sequence": [
+      "executor",
+      "verifier"
+    ],
+    "should_abstain": false,
+    "labeler": "synthetic",
+    "labeled_at": "2026-07-21T10:06:00Z"
+  },
+  "human_decision": {
+    "status": "accept"
+  },
+  "outcome": {
+    "schema_version": 1,
+    "decision_id": "dec-006",
+    "actual_route": {
+      "role": "executor",
+      "endpoint": "codex",
+      "model_tier": "balanced-coding",
+      "reasoning_tier": "medium"
+    },
+    "usage": {
+      "reported_tokens": 9000,
+      "api_equivalent_cost": null,
+      "subscription_quota_delta": 0.05,
+      "source": "fixture",
+      "source_confidence": "reported"
+    },
+    "result": {
+      "check": "pass",
+      "verify": "pass",
+      "repair_rounds": 1,
+      "replan": false,
+      "human_completed": true
+    }
+  }
+}

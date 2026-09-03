@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/zywkloo/wteval/schemas/outcome-v1.schema.json",
+  "title": "wteval outcome record v1",
+  "description": "Observed route, usage, and deterministic check/verify result for a prior decision.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "decision_id", "actual_route", "usage", "result"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "decision_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{1,127}$"
+    },
+    "actual_route": { "$ref": "decision-v1.schema.json#/$defs/route" },
+    "usage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source", "source_confidence"],
+      "properties": {
+        "reported_tokens": { "type": ["number", "null"], "minimum": 0 },
+        "api_equivalent_cost": { "type": ["number", "null"], "minimum": 0 },
+        "subscription_quota_delta": { "type": ["number", "null"], "minimum": 0 },
+        "source": { "type": "string", "minLength": 1 },
+        "source_confidence": {
+          "enum": ["authoritative", "reported", "inferred", "unavailable"]
+        }
+      }
+    },
+    "result": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["check", "verify", "repair_rounds", "replan", "human_completed"],
+      "properties": {
+        "check": { "enum": ["pass", "fail", "skip", "unavailable"] },
+        "verify": { "enum": ["pass", "fail", "skip", "unavailable"] },
+        "repair_rounds": { "type": "integer", "minimum": 0 },
+        "replan": { "type": "boolean" },
+        "human_completed": { "type": "boolean" }
+      }
+    }
+  }
+}

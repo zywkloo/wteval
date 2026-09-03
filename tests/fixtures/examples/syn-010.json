@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "example_id": "syn-010",
+  "task_id": "feat/synthetic-holdout-unknown",
+  "created_at": "2026-08-14T19:00:00Z",
+  "split": "holdout",
+  "features": {
+    "prompt_fingerprint": "sha256:synthetic-010",
+    "features_version": "task-features-v1",
+    "feature_snapshot": "",
+    "task_contract": {
+      "available_fields": [
+        "scope",
+        "off_limits",
+        "verification"
+      ],
+      "verification_declared": true
+    },
+    "repository_bucket": "python-cli",
+    "quota": {
+      "source": "none",
+      "source_confidence": "unavailable",
+      "providers": []
+    }
+  },
+  "labels": {
+    "work_kind": "discovery",
+    "size": "s",
+    "risk": "low",
+    "intended_sequence": [
+      "planner"
+    ],
+    "should_abstain": true,
+    "labeler": "synthetic",
+    "labeled_at": "2026-08-14T19:20:00Z"
+  },
+  "human_decision": {
+    "status": "dismiss"
+  },
+  "outcome": {
+    "schema_version": 1,
+    "decision_id": "dec-010",
+    "actual_route": {
+      "role": "planner",
+      "endpoint": "codex",
+      "model_tier": "balanced-coding",
+      "reasoning_tier": "medium"
+    },
+    "usage": {
+      "reported_tokens": null,
+      "api_equivalent_cost": null,
+      "subscription_quota_delta": null,
+      "source": "fixture",
+      "source_confidence": "unavailable"
+    },
+    "result": {
+      "check": "unavailable",
+      "verify": "unavailable",
+      "repair_rounds": 0,
+      "replan": false,
+      "human_completed": false
+    }
+  },
+  "notes": "Missing snapshot: advisor should abstain rather than invent a class."
+}

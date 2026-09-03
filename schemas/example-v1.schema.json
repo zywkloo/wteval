@@ -1,0 +1,137 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/zywkloo/wteval/schemas/example-v1.schema.json",
+  "title": "wteval labeled example v1",
+  "description": "One task decision plus human labels and an optional later outcome. Prompt text is optional and must be redacted if present.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "example_id",
+    "task_id",
+    "created_at",
+    "features",
+    "labels"
+  ],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "example_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{1,127}$"
+    },
+    "task_id": { "type": "string", "minLength": 1, "maxLength": 256 },
+    "created_at": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}[Tt]\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?([Zz]|[+-]\\d{2}:\\d{2})$"
+    },
+    "split": { "enum": ["train", "holdout", "unassigned"] },
+    "features": { "$ref": "#/$defs/features" },
+    "labels": { "$ref": "#/$defs/labels" },
+    "decision": { "$ref": "decision-v1.schema.json" },
+    "predictions": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": { "$ref": "#/$defs/prediction" }
+    },
+    "human_decision": { "$ref": "#/$defs/humanDecision" },
+    "outcome": { "$ref": "outcome-v1.schema.json" },
+    "notes": { "type": "string" }
+  },
+  "$defs": {
+    "features": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["prompt_fingerprint", "features_version"],
+      "properties": {
+        "prompt_fingerprint": { "type": "string", "minLength": 1 },
+        "features_version": { "type": "string", "minLength": 1 },
+        "feature_snapshot": { "type": "string" },
+        "task_contract": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "available_fields": {
+              "type": "array",
+              "items": { "type": "string", "minLength": 1 }
+            },
+            "verification_declared": { "type": "boolean" }
+          }
+        },
+        "repository_bucket": { "type": "string", "minLength": 1 },
+        "quota": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "source": { "type": "string", "minLength": 1 },
+            "source_confidence": {
+              "enum": ["authoritative", "reported", "inferred", "unavailable"]
+            },
+            "providers": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["name"],
+                "properties": {
+                  "name": { "type": "string", "minLength": 1 },
+                  "remaining": { "type": "number", "minimum": 0, "maximum": 1 },
+                  "window": { "type": "string", "minLength": 1 }
+                }
+              }
+            }
+          }
+        },
+        "git_summary": { "type": "string" }
+      }
+    },
+    "labels": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["work_kind", "size", "risk", "intended_sequence"],
+      "properties": {
+        "work_kind": {
+          "enum": ["discovery", "planning", "execution", "verification", "repair", "finishing"]
+        },
+        "size": { "enum": ["xs", "s", "m", "l", "xl"] },
+        "risk": { "enum": ["low", "medium", "high"] },
+        "intended_sequence": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "enum": ["planner", "executor", "verifier", "finisher"] }
+        },
+        "should_abstain": { "type": "boolean" },
+        "labeler": { "type": "string", "minLength": 1 },
+        "labeled_at": {
+          "type": "string",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}[Tt]\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?([Zz]|[+-]\\d{2}:\\d{2})$"
+        },
+        "notes": { "type": "string" }
+      }
+    },
+    "humanDecision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status"],
+      "properties": {
+        "status": { "enum": ["accept", "override", "dismiss", "pending"] },
+        "override_reason": { "type": "string", "minLength": 1 }
+      }
+    },
+    "prediction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["classification", "recommended_route", "forecast"],
+      "properties": {
+        "classification": { "$ref": "decision-v1.schema.json#/$defs/classification" },
+        "recommended_route": { "$ref": "decision-v1.schema.json#/$defs/route" },
+        "forecast": { "$ref": "decision-v1.schema.json#/$defs/forecast" },
+        "reason_codes": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "abstain": { "type": "boolean" },
+        "system_id": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}
