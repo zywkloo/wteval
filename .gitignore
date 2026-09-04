@@ -12,8 +12,10 @@ env/
 .DS_Store
 *.log
 
-# Private labeled data and local reports. Synthetic fixtures stay tracked.
+# Private labeled data, local draft helpers, and local reports.
+# Synthetic fixtures stay tracked.
 datasets/private/
+scripts/draft_private_examples.py
 reports/local/
 reports/*/
 !reports/.gitkeep

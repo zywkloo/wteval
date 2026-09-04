@@ -8,7 +8,7 @@
 ## Decision
 
 Keep datasets, experiment configs, metrics, batch runs, and reports in this
-private repository. Do not add an `eval/` tree to public
+sibling repository. Do not add an `eval/` tree to public
 [wtcraft](https://github.com/zywkloo/wtcraft).
 
 | Surface | Owns |
@@ -30,14 +30,17 @@ scope. Putting the advisor experiment there would:
 Interview-visible artifacts, if any, are a later methodology report or a
 redacted public extract. They are not a reason to grow wtcraft's scope.
 
-## Why this private GitHub repo
+## Why a sibling GitHub repo
 
-The lab needs versioned schemas, CI on the harness, and a place to store
-private labeled examples. A sibling folder without git cannot do that. A
-public `eval/` directory can, but at the wrong scope cost.
+The lab needs versioned schemas, CI on the harness, and a place to run
+experiments without widening wtcraft's shipped CLI scope. A sibling folder
+without git cannot do that. A public `wtcraft/eval/` directory can, but at
+the wrong scope cost.
 
-Private labeled JSON stays under `datasets/private/` and is gitignored.
-Committed fixtures are synthetic only.
+This repository is public for methodology and harness code. Personal dogfood
+labels stay under gitignored `datasets/private/` and are never committed.
+Local draft helpers such as `scripts/draft_private_examples.py` are gitignored
+too. Committed fixtures are synthetic only.
 
 Competitive research, fork/upstream strategy, and TokenTracker integration
 plans are maintained outside this repository.

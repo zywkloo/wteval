@@ -20,7 +20,8 @@ is the preferred telemetry and existing quota-visibility surface; wtflow may
 render a small, distinct Quota Cat overlay with a cat and a few quota jars, but
 should not recreate its dashboard, widgets, or general usage pet. Wteval owns
 only datasets, experiments, calibration, and reports. Those artifacts live in
-this private repository, not in a public `wtcraft/eval/` tree. See
+this sibling repository, not in a public `wtcraft/eval/` tree. Personal
+dogfood labels stay gitignored under `datasets/private/`. See
 [lab boundary](docs/lab-boundary.md).
 
 ## Current decision
@@ -101,6 +102,8 @@ labeled example. Real dogfood JSON stays in gitignored `datasets/private/`.
   boundary.
 - [Architecture](docs/architecture.md) — decision/outcome evidence flow and
   offline evaluation design.
+- [Advise seams](docs/advise-seams.md) — composable preflight stages mapped to
+  `decision-v1`.
 - [MVP plan](docs/mvp-plan.md) — smallest dogfood vertical slice.
 - [Lab boundary](docs/lab-boundary.md) — why experiments stay here instead of
   public `wtcraft/eval/`.

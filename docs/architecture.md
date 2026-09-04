@@ -150,6 +150,9 @@ The advisor pipeline has four separable components:
 Each component gets an independent version and evaluator. A better classifier
 does not imply a better routing policy.
 
+See [advise seams](advise-seams.md) for the composable stage map, configuration
+layers, and wteval metrics per seam.
+
 ## Role preferences versus endpoint capabilities
 
 Wtcraft's human-editable role configuration expresses preference. It cannot by
