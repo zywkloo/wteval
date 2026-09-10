@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "run_id": "cap-001",
+  "task_id": "cap-task-001",
+  "created_at": "2026-07-10T12:00:00Z",
+  "arm": "contract",
+  "agent": { "endpoint": "codex", "model": "gpt-5.5", "config_version": "cfg-a" },
+  "task": {
+    "repository": "python-cli",
+    "base_revision": "base-0001",
+    "oracle_revision": "oracle-0001",
+    "prompt_fingerprint": "sha256:synthetic-cap-task-001",
+    "verification_declared": true
+  },
+  "result": { "check": "pass", "verify": "pass", "repair_rounds": 0, "replan": false },
+  "usage": {
+    "reported_tokens": 12000,
+    "subscription_quota_delta": 0.04,
+    "source": "fixture",
+    "source_confidence": "reported"
+  },
+  "notes": "Synthetic fixture. Not a product-value result."
+}
