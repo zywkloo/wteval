@@ -35,8 +35,9 @@ python3 scripts/run_mutation.py \
 
 Catalog (`wteval/mutation.py`): comparison flips (`>`↔`>=`, `<`↔`<=`,
 `==`↔`!=`), logical flips (`and`↔`or`), boolean flips (`True`↔`False`), and
-`+`→`-`. Text-level, not AST-level — the honest framing is "same shape as
-mutmut/mut.py, without AST precision".
+`+`→`-`. AST-guided — sites are found by walking the parsed AST and spliced at
+the operator's byte offsets, so string/comment text is never mutated and
+stillborn mutants are avoided.
 
 The same injector doubles as the **bug seeder** for capability-eval tasks: a
 `killed` mutant is a task with known ground truth ("make the tests pass again",
@@ -62,9 +63,24 @@ keeps it alive as a `wteval/mut-*` branch in the target repo, and emits
 object is drop-in for the capability-run schema's `task`: `base_revision` is
 the mutated commit SHA, `oracle_revision` is the pre-mutation `HEAD`, and
 `verification` is the failing test extracted from the run output. A survived
-mutant is a test-suite gap, not a task; a timeout counts as killed (verification
-did not pass). The catalog sets `task.origin = "mutation"` so reports can keep
-synthetic seeded tasks honest against historical ones.
+mutant is a test-suite gap or equivalent mutant, not a task; a timeout counts
+as killed (verification did not pass). The catalog sets `task.origin =
+"mutation"` so reports can keep synthetic seeded tasks honest against
+historical ones.
+
+The catalog also lands the construction metrics on disk so "is this a good
+benchmark?" is answerable from the artifact, not a prose claim:
+
+- `baseline` — the `--test-cmd` run on the pre-mutation HEAD. Seeding refuses
+  to start if this is not green: a red baseline has no ground truth.
+- `mutation_score` — `killed / (killed + survived)`, a diagnostic on the
+  oracle's coverage, **not** a quality certificate.
+- `task_yield` — `n_tasks / n_sites`, the fraction of generated mutants that
+  became tasks (the benchmark-construction productivity number).
+- `deterministic` (per task) — whether the oracle failed the same mutant on a
+  re-run; a flaky task is flagged, not silently shipped.
+- `records` — every site's outcome, including survived, so a human can triage
+  each survivor as a real test gap versus an equivalent mutant.
 
 ## Property-based testing
 
@@ -107,7 +123,9 @@ not claim Hypothesis-scale shrinking.
 
 ## Honest limits
 
-- Text-level mutation produces stillborn mutants; real tools use AST mutations.
+- The operator catalog is narrow (comparison/logical/boolean/arith flips), so
+  a survived mutant may be an equivalent mutant, not only a test gap; survivors
+  are listed in `records` for manual triage.
 - The PBT harness is seeded-random and greedy-shrinking, not Hypothesis.
 - Both measure *their own* targets; neither proves semantic correctness, only
   that the declared test/oracle fired or held.
