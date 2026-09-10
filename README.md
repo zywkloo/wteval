@@ -90,6 +90,9 @@ python3 scripts/run_eval.py \
   --experiment experiments/000-harness-smoke/experiment.json \
   --dataset tests/fixtures/examples \
   --out reports/local/000-harness-smoke
+python3 scripts/run_capability.py \
+  --runs tests/fixtures/runs \
+  --out reports/local/capability-smoke
 tests/run_all.sh
 ```
 
@@ -110,6 +113,8 @@ labeled example. Real dogfood JSON stays in gitignored `datasets/private/`.
 - [Lab boundary](docs/lab-boundary.md) — why experiments stay here instead of
   public `wtcraft/eval/`.
 - [Harness](docs/harness.md) — schema, metrics, baselines, and batch runner.
+- [Capability eval](docs/capability-eval.md) — deterministic-oracle two-arm
+  runs scored by `wtcraft check/verify`.
 - [Evaluation methodology](docs/evaluation-methodology.md) — datasets,
   baselines, metrics, and counterfactual limits.
 - [Ambient companion UX](docs/ambient-companion.md) — lightweight Quota Cat
