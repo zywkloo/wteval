@@ -52,6 +52,17 @@ class CapabilityTests(unittest.TestCase):
         self.assertLessEqual(hi, 1.0)
         self.assertLessEqual(lo, hi)
 
+    def test_verification_field_validates(self) -> None:
+        run = copy.deepcopy(load_runs(FIXTURES)[0])
+        run["task"]["verification"] = "tests/contracts/policy-envelope/authorized-change"
+        self.assertEqual(validate_capability_run(run), [])
+
+    def test_verification_field_must_be_string(self) -> None:
+        run = copy.deepcopy(load_runs(FIXTURES)[0])
+        run["task"]["verification"] = 123
+        errors = validate_capability_run(run)
+        self.assertTrue(any("verification" in item for item in errors))
+
 
 if __name__ == "__main__":
     unittest.main()

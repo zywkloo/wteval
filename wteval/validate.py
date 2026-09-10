@@ -263,6 +263,8 @@ def _capability_task(obj: Any, path: str) -> list[str]:
     errors.extend(_nonempty_string(obj.get("prompt_fingerprint"), f"{path}.prompt_fingerprint"))
     if "verification_declared" in obj and obj["verification_declared"] is not None:
         errors.extend(_bool(obj["verification_declared"], f"{path}.verification_declared"))
+    if "verification" in obj and obj["verification"] is not None:
+        errors.extend(_nonempty_string(obj["verification"], f"{path}.verification"))
     return errors
 
 

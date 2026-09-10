@@ -162,7 +162,7 @@ CAPABILITY_TASK_REQUIRED = (
     "prompt_fingerprint",
 )
 
-CAPABILITY_TASK_OPTIONAL = ("verification_declared",)
+CAPABILITY_TASK_OPTIONAL = ("verification_declared", "verification")
 
 CAPABILITY_RESULT_REQUIRED = ("check", "verify", "repair_rounds", "replan")
 
