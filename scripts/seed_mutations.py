@@ -13,6 +13,12 @@ catalog. The catalog's ``task`` object is drop-in for the capability-run
 schema's ``task``, so running the two-arm experiment is a matter of copying a
 task into a run record per arm and executing the agent.
 
+The catalog records the construction metrics: a ``baseline`` gate (refuses to
+seed from a red pre-mutation HEAD), ``task_yield`` (``n_tasks / n_sites``), a
+``mutation_score`` diagnostic, the full ``records`` list (including survived
+sites for manual equivalent-mutant triage), and a per-task ``deterministic``
+flag (whether the oracle failed the same mutant on a re-run).
+
 Example against wtcraft:
 
     python3 scripts/seed_mutations.py \
@@ -53,6 +59,21 @@ def _run(args: list[str], cwd: Path, timeout: int | None = None) -> subprocess.C
 
 def _run_shell(cmd: str, cwd: Path, timeout: int | None = None) -> subprocess.CompletedProcess[str]:
     return subprocess.run(cmd, shell=True, cwd=cwd, capture_output=True, text=True, timeout=timeout)
+
+
+def _classify_verification(
+    cmd: str, cwd: Path, timeout: int | None = None
+) -> tuple[str, subprocess.CompletedProcess[str] | None]:
+    """Run the verification command once; return ``("pass"|"fail"|"timeout", proc)``.
+
+    ``proc`` is None only on timeout. ``pass`` means exit 0; ``fail`` means the
+    verification observed a non-zero exit.
+    """
+    try:
+        proc = _run_shell(cmd, cwd=cwd, timeout=timeout)
+        return ("pass" if proc.returncode == 0 else "fail"), proc
+    except subprocess.TimeoutExpired:
+        return "timeout", None
 
 
 def _git(repo: Path, *args: str, cwd: Path | None = None, timeout: int | None = None) -> subprocess.CompletedProcess[str]:
@@ -134,12 +155,26 @@ def main() -> int:
     oracle = _head_sha(repo)
     name = _repo_name(repo)
 
-    # Discover sites on a throwaway copy so we know counts before touching git.
+    # Discover sites and gate the baseline on one throwaway worktree so we know
+    # counts before touching git, and refuse to seed from a red oracle.
     tmp_probe = Path(tempfile.mkdtemp(prefix="wteval-probe-"))
     try:
         probe_wt = tmp_probe / "repo"
         _git(repo, "worktree", "add", "--detach", str(probe_wt), oracle)
         sites = _collect_sites(probe_wt, args.files)
+
+        status, proc = _classify_verification(args.test_cmd, cwd=probe_wt, timeout=args.timeout)
+        baseline = {
+            "pass": status == "pass",
+            "status": status,
+            "exit_code": None if proc is None else proc.returncode,
+        }
+        if not baseline["pass"]:
+            detail = "timeout" if proc is None else f"exit {proc.returncode}"
+            raise RuntimeError(
+                f"oracle revision {oracle[:8]} does not pass --test-cmd ({detail}); "
+                "refusing to seed tasks from a red baseline"
+            )
     finally:
         _git(repo, "worktree", "remove", "--force", str(probe_wt))
         shutil.rmtree(tmp_probe, ignore_errors=True)
@@ -165,24 +200,26 @@ def main() -> int:
             original = target.read_text(encoding="utf-8")
             target.write_text(mutant.mutated_text, encoding="utf-8")
 
-            try:
-                proc = _run_shell(args.test_cmd, cwd=wt, timeout=args.timeout)
-                timed_out = False
-            except subprocess.TimeoutExpired:
-                proc = None
-                timed_out = True
+            status, proc = _classify_verification(args.test_cmd, cwd=wt, timeout=args.timeout)
 
-            if not timed_out and proc.returncode == 0:
+            if status == "pass":
                 counts["survived"] += 1
                 records.append({"task_id": task_id, "rule": mutant.rule, "file": rel, "status": "survived"})
                 continue
 
-            if timed_out:
+            deterministic = False
+            if status == "timeout":
                 counts["timeout"] += 1
                 output = ""
+                record_status = "timeout"
+                # Timeout mutants are flaky by construction; never re-checked.
             else:
                 counts["killed"] += 1
                 output = (proc.stdout or "") + "\n" + (proc.stderr or "")
+                record_status = "killed"
+                # Determinism: the oracle must fail the same mutant twice.
+                second_status, _ = _classify_verification(args.test_cmd, cwd=wt, timeout=args.timeout)
+                deterministic = second_status == "fail"
 
             # Commit the mutant so base_revision is a real SHA.
             _git(wt, "add", "-A")
@@ -201,14 +238,14 @@ def main() -> int:
             patch = _emit_patch(repo, oracle, base, out, task_id)
 
             failing = _extract_failing_test(output)
-            status = "timeout" if timed_out else "killed"
             records.append(
                 {
                     "task_id": task_id,
                     "rule": mutant.rule,
                     "file": rel,
-                    "status": status,
+                    "status": record_status,
                     "failing_test": failing,
+                    "deterministic": deterministic,
                 }
             )
             tasks.append(
@@ -227,6 +264,7 @@ def main() -> int:
                     "mutation": {"rule": mutant.rule, "file": rel, "original": original, "mutated": mutant.mutated_text},
                     "patch": f"mutations/{task_id}.patch",
                     "failing_test": failing,
+                    "deterministic": deterministic,
                 }
             )
         finally:
@@ -234,6 +272,7 @@ def main() -> int:
             shutil.rmtree(tmp, ignore_errors=True)
 
     score = score_mutation(counts["killed"] + counts["timeout"], counts["survived"])
+    task_yield = round(len(tasks) / len(sites), 4) if sites else None
     payload = {
         "schema_version": 1,
         "tool": "seed_mutations",
@@ -242,15 +281,24 @@ def main() -> int:
         "test_cmd": args.test_cmd,
         "n_sites": len(sites),
         "n_tasks": len(tasks),
+        "task_yield": task_yield,
+        "baseline": baseline,
         "counts": counts,
         "mutation_score": score,
+        "records": records,
         "tasks": tasks,
-        "note": "timeout mutants count as killed (verification did not pass); survived mutants are test gaps, not tasks.",
+        "note": (
+            "baseline is the verification run on the pre-mutation HEAD (must pass); "
+            "task_yield = n_tasks / n_sites; timeout mutants count as killed "
+            "(verification did not pass); survived mutants are test gaps or "
+            "equivalent mutants, not tasks; deterministic=false means the oracle "
+            "did not reproduce the failure on a re-run."
+        ),
     }
     (out / "seed-tasks.json").write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
     print(
         f"seeded {len(tasks)} tasks ({counts['killed']} killed, {counts['timeout']} timeout, "
-        f"{counts['survived']} survived) from {len(sites)} sites -> {out}/seed-tasks.json"
+        f"{counts['survived']} survived) from {len(sites)} sites (yield {task_yield}) -> {out}/seed-tasks.json"
     )
     return 0
 
