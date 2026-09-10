@@ -76,10 +76,8 @@ def _ensure_clean(repo: Path) -> None:
 
 
 def _repo_name(repo: Path) -> str:
-    proc = _git(repo, "config", "--get", "remote.origin.url")
-    url = proc.stdout.strip()
-    if url:
-        return url
+    # Directory name only, so task.repository matches scan_verifications and the
+    # capability-run schema ("name only, no local path").
     return repo.resolve().name
 
 
