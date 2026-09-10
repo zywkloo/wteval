@@ -82,6 +82,31 @@ are wide.
 5. Re-run the same revision to confirm the oracle is reproducible before
    trusting the pass/fail.
 
+## Candidate screening
+
+`scripts/scan_candidates.py` flags commits that touch both a test file and a
+source file, as a first pass for building the real task set:
+
+```bash
+python3 scripts/scan_candidates.py \
+  --repo ../wtcraft --repo ../wtflow \
+  --since 2026-01-01 \
+  --out datasets/private/candidates.json
+```
+
+Output is a JSON candidate list; each entry maps to a capability-run:
+
+- `oracle_sha` → `task.oracle_revision`
+- `base_sha` → `task.base_revision`
+- `repo` → `task.repository` (name only)
+- `subject` + `test_files` → a redacted `prompt_fingerprint`
+
+The heuristic is only a filter: a human must confirm each commit is a real
+"test now passes" ground truth (the test existed at base or is injected from
+oracle, and passes at oracle). Keep the list under gitignored
+`datasets/private/`. Repos without real tests produce no oracle and should be
+excluded — a GUI shell with no unit tests cannot supply ground truth.
+
 ## Go/no-go
 
 Ship the report when:
