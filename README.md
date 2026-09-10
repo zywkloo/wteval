@@ -102,15 +102,22 @@ python3 scripts/run_capability.py \
   --runs tests/fixtures/runs \
   --out reports/local/capability-smoke
 python3 scripts/run_pbt.py
+python3 scripts/run_pbt.py --properties pbt_properties/wtcraft.py   # needs ../wtcraft
+python3 scripts/seed_mutations.py \
+  --repo ../wtcraft --files "scripts/policy_evaluator.py" \
+  --test-cmd "python3 tests/contract_policy_envelope.py" \
+  --max-mutants 20 --out datasets/private/mutations
 tests/run_all.sh
 ```
 
 See [harness](docs/harness.md) for metrics, baselines, and how to add a private
 labeled example. Real dogfood JSON stays in gitignored `datasets/private/`.
 
-Task-set builders (`scripts/scan_verifications.py`, `scripts/scan_candidates.py`)
-and the mutation-score gate (`scripts/run_mutation.py`) are documented in
-[capability eval](docs/capability-eval.md) and [mutation & PBT](docs/mutation-pbt.md).
+Task-set builders (`scripts/scan_verifications.py`, `scripts/scan_candidates.py`),
+the mutation gate and seeder (`scripts/run_mutation.py`,
+`scripts/seed_mutations.py`), and PBT catalogs (`pbt_properties/`) are
+documented in [capability eval](docs/capability-eval.md) and
+[mutation & PBT](docs/mutation-pbt.md).
 
 ## Active documents
 
