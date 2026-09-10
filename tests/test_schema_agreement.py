@@ -101,6 +101,7 @@ class SchemaAgreementTests(unittest.TestCase):
             set(task["properties"]),
             set(constants.CAPABILITY_TASK_REQUIRED) | set(constants.CAPABILITY_TASK_OPTIONAL),
         )
+        self.assertEqual(tuple(task["properties"]["origin"]["enum"]), constants.TASK_ORIGINS)
         result = schema["$defs"]["result"]
         self.assertEqual(tuple(result["required"]), constants.CAPABILITY_RESULT_REQUIRED)
         usage = schema["$defs"]["usage"]

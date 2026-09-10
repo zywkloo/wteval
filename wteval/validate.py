@@ -53,6 +53,7 @@ from .constants import (
     SOURCE_CONFIDENCE,
     SPLITS,
     TIMESTAMP_PATTERN,
+    TASK_ORIGINS,
     USAGE_OPTIONAL,
     USAGE_REQUIRED,
     WORK_KINDS,
@@ -265,6 +266,8 @@ def _capability_task(obj: Any, path: str) -> list[str]:
         errors.extend(_bool(obj["verification_declared"], f"{path}.verification_declared"))
     if "verification" in obj and obj["verification"] is not None:
         errors.extend(_nonempty_string(obj["verification"], f"{path}.verification"))
+    if "origin" in obj and obj["origin"] is not None:
+        errors.extend(_enum(obj.get("origin"), f"{path}.origin", TASK_ORIGINS))
     return errors
 
 

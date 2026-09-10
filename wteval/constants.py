@@ -140,6 +140,8 @@ METRIC_GROUPS = ("classification", "forecast", "recommendation")
 
 ARMS = ("contract", "no_contract")
 
+TASK_ORIGINS = ("history", "mutation", "pbt", "fixture")
+
 CAPABILITY_RUN_REQUIRED = (
     "schema_version",
     "run_id",
@@ -162,7 +164,7 @@ CAPABILITY_TASK_REQUIRED = (
     "prompt_fingerprint",
 )
 
-CAPABILITY_TASK_OPTIONAL = ("verification_declared", "verification")
+CAPABILITY_TASK_OPTIONAL = ("verification_declared", "verification", "origin")
 
 CAPABILITY_RESULT_REQUIRED = ("check", "verify", "repair_rounds", "replan")
 

@@ -54,7 +54,8 @@
         "oracle_revision": { "type": "string", "minLength": 1 },
         "prompt_fingerprint": { "type": "string", "minLength": 1 },
         "verification_declared": { "type": "boolean" },
-        "verification": { "type": "string", "minLength": 1 }
+        "verification": { "type": "string", "minLength": 1 },
+        "origin": { "enum": ["history", "mutation", "pbt", "fixture"] }
       }
     },
     "result": {
