@@ -2,8 +2,10 @@
 
 > Offline evaluation lab for wtcraft's quota-aware coding-agent advisor.
 >
-> Status: planning docs plus a stdlib harness skeleton. No runtime, router,
-> daemon, GUI, or LangChain/LangGraph integration exists in this folder.
+> Status: planning docs plus a stdlib evaluation toolkit — advisor-eval batch
+> runner, deterministic-oracle capability runner, mutation testing, and
+> property-based testing. No runtime, router, daemon, GUI, or
+> LangChain/LangGraph integration exists in this folder.
 
 Wteval exists to answer whether a proposed advisor is actually useful:
 
@@ -25,6 +27,12 @@ only datasets, experiments, calibration, and reports. Those artifacts live in
 this sibling repository, not in a public `wtcraft/eval/` tree. Personal
 dogfood labels stay gitignored under `datasets/private/`. See
 [lab boundary](docs/lab-boundary.md).
+
+A second, standalone experiment lives here too: deterministic-oracle
+capability eval — does a wtcraft task contract change verified outcomes? —
+scored by `wtcraft check/verify` instead of a judge model. Its task-set
+builders and mutation/PBT instruments are covered in
+[capability eval](docs/capability-eval.md) and [mutation & PBT](docs/mutation-pbt.md).
 
 ## Current decision
 
@@ -79,10 +87,10 @@ The remaining research questions are still useful and portfolio-relevant:
 The answers may be negative. A negative result is acceptable; inventing a
 product moat or a precise quota forecast is not.
 
-## Harness skeleton
+## Tools
 
-Synthetic fixtures, frozen v1 schemas, deterministic baselines, and the batch
-runner are executable now:
+Frozen v1 schemas, deterministic baselines, and the batch runners are
+executable now:
 
 ```bash
 python3 scripts/validate.py tests/fixtures/examples
@@ -93,11 +101,16 @@ python3 scripts/run_eval.py \
 python3 scripts/run_capability.py \
   --runs tests/fixtures/runs \
   --out reports/local/capability-smoke
+python3 scripts/run_pbt.py
 tests/run_all.sh
 ```
 
 See [harness](docs/harness.md) for metrics, baselines, and how to add a private
 labeled example. Real dogfood JSON stays in gitignored `datasets/private/`.
+
+Task-set builders (`scripts/scan_verifications.py`, `scripts/scan_candidates.py`)
+and the mutation-score gate (`scripts/run_mutation.py`) are documented in
+[capability eval](docs/capability-eval.md) and [mutation & PBT](docs/mutation-pbt.md).
 
 ## Active documents
 
