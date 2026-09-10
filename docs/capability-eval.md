@@ -84,28 +84,46 @@ are wide.
 
 ## Candidate screening
 
+Two scanners build the task set. The unit-granularity scanner is the primary
+one for reaching the 30–50 target.
+
+### Verification units (primary)
+
+`scripts/scan_verifications.py` decomposes history by the verification unit a
+commit introduces — a runnable test script or a contract-case directory — so a
+single commit can yield many tasks:
+
+```bash
+python3 scripts/scan_verifications.py \
+  --repo ../wtcraft \
+  --since 2024-01-01 \
+  --out datasets/private/verifications.json
+```
+
+Each unit maps to a capability-run:
+
+- `verification` → `task.verification`
+- `oracle_sha` → `task.oracle_revision`
+- `base_sha` → `task.base_revision`
+- `repo` → `task.repository` (name only)
+
+### Commit candidates (secondary)
+
 `scripts/scan_candidates.py` flags commits that touch both a test file and a
-source file, as a first pass for building the real task set:
+source file; useful when a repo has no case-directory convention:
 
 ```bash
 python3 scripts/scan_candidates.py \
   --repo ../wtcraft --repo ../wtflow \
-  --since 2026-01-01 \
+  --since 2024-01-01 \
   --out datasets/private/candidates.json
 ```
 
-Output is a JSON candidate list; each entry maps to a capability-run:
-
-- `oracle_sha` → `task.oracle_revision`
-- `base_sha` → `task.base_revision`
-- `repo` → `task.repository` (name only)
-- `subject` + `test_files` → a redacted `prompt_fingerprint`
-
-The heuristic is only a filter: a human must confirm each commit is a real
-"test now passes" ground truth (the test existed at base or is injected from
-oracle, and passes at oracle). Keep the list under gitignored
-`datasets/private/`. Repos without real tests produce no oracle and should be
-excluded — a GUI shell with no unit tests cannot supply ground truth.
+Both are heuristics: a human must confirm each unit is a real "verification now
+passes" ground truth, and drop test-harness infra such as `run_all.sh` and
+`framework.sh`. Keep the lists under gitignored `datasets/private/`. Repos
+without real tests produce no oracle and should be excluded — a GUI shell with
+no unit tests cannot supply ground truth.
 
 ## Go/no-go
 
