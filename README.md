@@ -137,6 +137,7 @@ documented in [capability eval](docs/capability-eval.md) and
   runs scored by `wtcraft check/verify`.
 - [Mutation & PBT](docs/mutation-pbt.md) — mutation-score gate and
   property-based testing instruments.
+- [Executor](docs/executor.md) — two-arm run scheduling and result mapping.
 - [Evaluation methodology](docs/evaluation-methodology.md) — datasets,
   baselines, metrics, and counterfactual limits.
 - [Ambient companion UX](docs/ambient-companion.md) — lightweight Quota Cat
