@@ -1,13 +1,17 @@
 #!/usr/bin/env python3
-"""Run the seeded property-based testing demo properties.
+"""Run property-based tests: the built-in demo or an external catalog.
 
-Each property maps to the deterministic-oracle taxonomy: round-trip,
-idempotent, and invariant. One property is intentionally naive to demonstrate
-counterexample discovery and shrinking.
+External catalogs (e.g. ``pbt_properties/wtcraft.py``) must export
+``properties()`` returning a list of dicts ``{"name", "shape", "failure"}``
+where ``failure`` is a ``wteval.pbt.Failure`` or ``None``. In gate mode
+(external catalog, or ``--strict``) a failing property makes the process exit
+non-zero.
 """
 
 from __future__ import annotations
 
+import argparse
+import importlib.util
 import json
 import sys
 from pathlib import Path
@@ -98,28 +102,59 @@ def _json_eq(a, b) -> bool:
     return json.dumps(a, sort_keys=True) == json.dumps(b, sort_keys=True)
 
 
+def _load_external(path: Path) -> list[dict]:
+    spec = importlib.util.spec_from_file_location("pbt_catalog", path)
+    if spec is None or spec.loader is None:
+        raise RuntimeError(f"cannot load catalog {path}")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    if not callable(getattr(module, "properties", None)):
+        raise RuntimeError(f"{path} must export properties()")
+    return module.properties()
+
+
+def _compact(value, limit: int = 160) -> str:
+    if isinstance(value, (dict, list, tuple)):
+        text = json.dumps(value, ensure_ascii=False, sort_keys=True, default=str)
+    else:
+        text = repr(value)
+    return text if len(text) <= limit else text[:limit] + "..."
+
+
 def _render(failure: Failure | None) -> str:
     if failure is None:
         return "PASS"
     return (
-        f"FAIL counterexample={failure.counterexample!r} "
-        f"(shrinks={failure.shrinks}, original={failure.original!r})"
+        f"FAIL counterexample={_compact(failure.counterexample)} "
+        f"(shrinks={failure.shrinks}, original={_compact(failure.original)})"
     )
 
 
 def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--properties", default=None, help="Catalog module exporting properties()")
+    parser.add_argument("--strict", action="store_true", help="Exit non-zero on failure even for the demo")
+    args = parser.parse_args()
+
+    props = _load_external(Path(args.properties)) if args.properties else _properties()
+
     passed = 0
     failed = 0
-    for prop in _properties():
-        result = _render(prop["failure"])
-        if prop["failure"] is None:
+    for prop in props:
+        failure = prop.get("failure")
+        if failure is None:
             passed += 1
         else:
             failed += 1
-        print(f"{prop['name']:24s} [{prop['shape']:28s}] {result}")
+        print(f"{prop.get('name', '?'):28s} [{prop.get('shape', '?'):30s}] {_render(failure)}")
     print(f"\n{passed} passed, {failed} failed")
-    return 0
+    strict = args.strict or args.properties is not None
+    return 1 if (failed and strict) else 0
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    try:
+        raise SystemExit(main())
+    except (RuntimeError, FileNotFoundError, OSError) as exc:
+        print(exc, file=sys.stderr)
+        raise SystemExit(1)
