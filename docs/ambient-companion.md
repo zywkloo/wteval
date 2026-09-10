@@ -45,7 +45,7 @@ mode. No notification is emitted for ordinary state changes.
 
 ### Agent-instruction advice
 
-The user enables Quota Cat once for a workspace. Wtflow/wtcraft then proposes a
+The user enables Quota Cat once for a workspace. wtcraft then proposes a
 small instruction patch for the relevant `AGENTS.md` or provider-specific
 instruction file. The instruction should say, in effect:
 
@@ -75,7 +75,7 @@ one-off decisions. The user may still choose to expose a task by:
 
 - click the pet and paste/type a task;
 - drag selected text onto the pet;
-- invoke a configured hotkey from wtflow;
+- invoke a configured hotkey from the companion overlay (wtflow is paused);
 - send an existing wtcraft task contract.
 
 Do not silently watch the clipboard, intercept keystrokes, scrape other chat

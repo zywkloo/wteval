@@ -46,7 +46,7 @@ inputs
 [5] policy.select               recommended_route + reason_codes
         |                       (uses capability matrix + reservation)
         v
-[6] recommendation.render       human CLI/JSON; optional wtflow state
+[6] recommendation.render       human CLI/JSON; optional renderer state (wtflow paused)
         |
         v
 [7] human.decision              human_decision.{status,override_reason}
@@ -148,7 +148,7 @@ constraints and recommendations; it does not implement a second router.
 | New classifier | `classification.*` version + wteval baseline | `check` / `verify` |
 | New quota source | `quota.adapter` + contract tests | TokenTracker internals |
 | New reservation rule | `policy.select` + reason codes | task contract schema |
-| New renderer | wtflow / CLI / MCP read `decision.json` | decision schema v1 |
+| New renderer | CLI / MCP read `decision.json` (wtflow paused) | decision schema v1 |
 | New experiment | `experiments/*.json` + wteval runner | runtime hot path |
 
 ## wteval evaluation per seam

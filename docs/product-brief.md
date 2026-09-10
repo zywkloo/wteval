@@ -112,8 +112,9 @@ The exact instruction is generated from local configuration and may differ by
 agent surface. The integration must show whether the instruction is enabled,
 missing, drifted, or unsupported. Manual stdin/paste/task feeding remains a
 fallback, not the primary daily workflow. Advice first appears as human-readable
-CLI plus JSON; wtflow or a small TokenTracker renderer is optional only after
-the decision engine proves useful.
+CLI plus JSON; a small TokenTracker renderer is optional only after the decision
+engine proves useful. wtflow was a candidate renderer but is paused while its
+worktree-based Git control GUI shell is evaluated.
 
 ## Fixed advisor runtime
 

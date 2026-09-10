@@ -13,7 +13,7 @@
          wtcraft advise
        /                 \
       v                   v
-decision.json       wtflow companion state
+decision.json       companion renderer state (wtflow paused)
                           |
                  inspect/accept/override/ignore
                           |

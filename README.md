@@ -16,9 +16,11 @@ verification outcomes?
 
 The runtime feature, if the evidence supports building it, belongs in
 [wtcraft](https://github.com/zywkloo/wtcraft/blob/main/docs/backlogs/quota-aware-task-planning.md). TokenTracker
-is the preferred telemetry and existing quota-visibility surface; wtflow may
-render a small, distinct Quota Cat overlay with a cat and a few quota jars, but
-should not recreate its dashboard, widgets, or general usage pet. Wteval owns
+is the preferred telemetry and existing quota-visibility surface. wtflow was a
+candidate to render a small, distinct Quota Cat overlay with a cat and a few
+quota jars, but it is paused while its worktree-based Git control GUI shell is
+evaluated; it must not recreate TokenTracker's dashboard, widgets, or general
+usage pet. Wteval owns
 only datasets, experiments, calibration, and reports. Those artifacts live in
 this sibling repository, not in a public `wtcraft/eval/` tree. Personal
 dogfood labels stay gitignored under `datasets/private/`. See
@@ -52,7 +54,7 @@ verification/repair capacity, and show that state through a cat and a few jars.
 | Component | Owns |
 | --- | --- |
 | `wtcraft advise` | Preflight classification, quota forecast, route recommendation, reason codes, decision record, and later outcome attachment. |
-| `wtflow` | Optional instruction enable/disable and minimal Quota Cat overlay/advice rendering after the decision engine proves useful; no duplicate quota dashboard. |
+| `wtflow` | **Paused.** Worktree-based Git control GUI shell (SourceGit fork) under evaluation; its candidate instruction enable/disable and minimal Quota Cat overlay/advice rendering are on hold. No duplicate quota dashboard. |
 | `wteval` | Labeled task datasets, deterministic baselines, advisor experiments, forecast calibration, routing-policy comparison, and methodology reports. |
 | TokenTracker | Preferred provider/session usage, quota-window, provenance, and existing dashboard/pet surfaces. |
 | Existing agents | Actual planning, execution, verification, and repair. |

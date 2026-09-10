@@ -9,8 +9,9 @@
 
 Wteval is not a standalone runtime product. It is an offline evaluation lab for
 a possible quota-aware preflight advisor implemented in wtcraft. TokenTracker
-is the selected first telemetry/visibility dependency; wtflow rendering is
-optional after the advisor proves useful.
+is the selected first telemetry/visibility dependency; wtflow rendering was
+optional after the advisor proves useful and is now paused while that
+worktree-based Git GUI shell is evaluated.
 
 The advisor concept remains useful for personal dogfooding and AI-engineering
 portfolio evidence, but the scan invalidated “recommend an agent and model
@@ -184,7 +185,7 @@ The possible runtime is split deliberately:
 | --- | --- |
 | Fixed advisor route and role/model policy | wtcraft configuration |
 | Prompt/task/repository feature extraction | `wtcraft advise` |
-| Instruction enable/disable and optional minimal advice rendering | wtflow |
+| Instruction enable/disable and optional minimal advice rendering | wtcraft (wtflow paused; worktree-based Git GUI shell under evaluation) |
 | Provider quota snapshots and passive visibility | TokenTracker first; other adapters optional |
 | Agent execution | Codex, Claude, Agy, Cursor, or another configured endpoint |
 | Dataset construction and comparison | wteval |
@@ -210,7 +211,7 @@ output, expose quota, and authenticate successfully.
 - personal forecast calibration and reservation policy;
 - evaluator and error-analysis reports;
 - a stable TokenTracker adapter plus the smallest workspace-instruction and
-  CLI/JSON advice path; wtflow rendering only after measured pull.
+  CLI/JSON advice path; wtflow rendering paused and only after measured pull.
 
 ### Borrow or integrate
 

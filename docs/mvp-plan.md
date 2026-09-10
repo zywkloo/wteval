@@ -1,6 +1,6 @@
 # MVP plan: TokenTracker-backed advisor, Quota Cat overlay, and offline proof
 
-> Status: proposed dogfood sequence. Runtime work belongs in wtcraft/wtflow;
+> Status: proposed dogfood sequence. Runtime work belongs in wtcraft (wtflow is paused while its worktree-based Git GUI shell is evaluated);
 > evaluation work belongs here.
 
 ## MVP outcome
