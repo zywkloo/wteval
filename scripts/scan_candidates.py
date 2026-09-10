@@ -56,8 +56,15 @@ def git(repo: Path, *args: str) -> str:
     return proc.stdout
 
 
-def list_commits(repo: Path, since: str | None, max_commits: int) -> list[str]:
-    cmd = ["rev-list", "--first-parent"]
+def list_commits(
+    repo: Path,
+    since: str | None,
+    max_commits: int,
+    first_parent: bool = False,
+) -> list[str]:
+    cmd = ["rev-list"]
+    if first_parent:
+        cmd.append("--first-parent")
     if since:
         cmd.append(f"--since={since}")
     if max_commits:
@@ -102,9 +109,14 @@ def classify(path: str) -> str:
     return "other"
 
 
-def scan_repo(repo: Path, since: str | None, max_commits: int) -> list[dict]:
+def scan_repo(
+    repo: Path,
+    since: str | None,
+    max_commits: int,
+    first_parent: bool,
+) -> list[dict]:
     candidates = []
-    for sha in list_commits(repo, since, max_commits):
+    for sha in list_commits(repo, since, max_commits, first_parent):
         meta = commit_meta(repo, sha)
         test_files: list[dict] = []
         source_files: list[dict] = []
@@ -134,6 +146,11 @@ def main() -> int:
     parser.add_argument("--repo", required=True, action="append", help="Repo path (repeatable)")
     parser.add_argument("--since", default=None, help="git rev-list --since value, e.g. 2026-01-01")
     parser.add_argument("--max-commits", type=int, default=0, help="Cap commits scanned per repo (0 = all)")
+    parser.add_argument(
+        "--first-parent",
+        action="store_true",
+        help="Follow only the first-parent (mainline) history; default is all reachable commits",
+    )
     parser.add_argument("--out", default=None, help="Write JSON here; default stdout")
     args = parser.parse_args()
 
@@ -143,7 +160,7 @@ def main() -> int:
         if not (repo / ".git").exists():
             print(f"warning: {repo} is not a git repo, skipping", file=sys.stderr)
             continue
-        candidates.extend(scan_repo(repo, args.since, args.max_commits))
+        candidates.extend(scan_repo(repo, args.since, args.max_commits, args.first_parent))
 
     candidates.sort(key=lambda c: c["author_date"], reverse=True)
     payload = {
