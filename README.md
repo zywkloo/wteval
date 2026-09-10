@@ -115,6 +115,8 @@ labeled example. Real dogfood JSON stays in gitignored `datasets/private/`.
 - [Harness](docs/harness.md) — schema, metrics, baselines, and batch runner.
 - [Capability eval](docs/capability-eval.md) — deterministic-oracle two-arm
   runs scored by `wtcraft check/verify`.
+- [Mutation & PBT](docs/mutation-pbt.md) — mutation-score gate and
+  property-based testing instruments.
 - [Evaluation methodology](docs/evaluation-methodology.md) — datasets,
   baselines, metrics, and counterfactual limits.
 - [Ambient companion UX](docs/ambient-companion.md) — lightweight Quota Cat
