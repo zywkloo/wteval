@@ -12,6 +12,15 @@ from typing import Any, Iterable, Mapping, Sequence
 from .constants import (
     ADVISOR_POLICIES,
     ADVISOR_ROUTE_REQUIRED,
+    AGENT_REQUIRED,
+    ARMS,
+    CAPABILITY_RESULT_REQUIRED,
+    CAPABILITY_RUN_OPTIONAL,
+    CAPABILITY_RUN_REQUIRED,
+    CAPABILITY_TASK_OPTIONAL,
+    CAPABILITY_TASK_REQUIRED,
+    CAPABILITY_USAGE_OPTIONAL,
+    CAPABILITY_USAGE_REQUIRED,
     CLASSIFICATION_OPTIONAL,
     CLASSIFICATION_REQUIRED,
     DECISION_OPTIONAL,
@@ -209,6 +218,78 @@ def validate_experiment(obj: Any, path: str = "$") -> list[str]:
             errors.append(f"{path}.holdout_fraction must be a number in (0, 1)")
     if "description" in obj and obj["description"] is not None:
         errors.extend(_nonempty_string(obj["description"], f"{path}.description", allow_empty=True))
+    return errors
+
+
+def validate_capability_run(obj: Any, path: str = "$") -> list[str]:
+    errors = _expect_object(obj, path)
+    if errors:
+        return errors
+    errors.extend(_closed_object(obj, path, CAPABILITY_RUN_REQUIRED, CAPABILITY_RUN_OPTIONAL))
+    errors.extend(_const_version(obj, path))
+    errors.extend(_id(obj.get("run_id"), f"{path}.run_id"))
+    errors.extend(_nonempty_string(obj.get("task_id"), f"{path}.task_id"))
+    errors.extend(_timestamp(obj.get("created_at"), f"{path}.created_at"))
+    errors.extend(_enum(obj.get("arm"), f"{path}.arm", ARMS))
+    errors.extend(_capability_agent(obj.get("agent"), f"{path}.agent"))
+    errors.extend(_capability_task(obj.get("task"), f"{path}.task"))
+    errors.extend(_capability_result(obj.get("result"), f"{path}.result"))
+    if "usage" in obj and obj["usage"] is not None:
+        errors.extend(_capability_usage(obj["usage"], f"{path}.usage"))
+    if "notes" in obj and obj["notes"] is not None:
+        errors.extend(_nonempty_string(obj["notes"], f"{path}.notes", allow_empty=True))
+    return errors
+
+
+def _capability_agent(obj: Any, path: str) -> list[str]:
+    errors = _expect_object(obj, path)
+    if errors:
+        return errors
+    errors.extend(_closed_object(obj, path, AGENT_REQUIRED, ()))
+    errors.extend(_nonempty_string(obj.get("endpoint"), f"{path}.endpoint"))
+    errors.extend(_nonempty_string(obj.get("model"), f"{path}.model"))
+    errors.extend(_nonempty_string(obj.get("config_version"), f"{path}.config_version"))
+    return errors
+
+
+def _capability_task(obj: Any, path: str) -> list[str]:
+    errors = _expect_object(obj, path)
+    if errors:
+        return errors
+    errors.extend(_closed_object(obj, path, CAPABILITY_TASK_REQUIRED, CAPABILITY_TASK_OPTIONAL))
+    errors.extend(_nonempty_string(obj.get("repository"), f"{path}.repository"))
+    errors.extend(_nonempty_string(obj.get("base_revision"), f"{path}.base_revision"))
+    errors.extend(_nonempty_string(obj.get("oracle_revision"), f"{path}.oracle_revision"))
+    errors.extend(_nonempty_string(obj.get("prompt_fingerprint"), f"{path}.prompt_fingerprint"))
+    if "verification_declared" in obj and obj["verification_declared"] is not None:
+        errors.extend(_bool(obj["verification_declared"], f"{path}.verification_declared"))
+    return errors
+
+
+def _capability_result(obj: Any, path: str) -> list[str]:
+    errors = _expect_object(obj, path)
+    if errors:
+        return errors
+    errors.extend(_closed_object(obj, path, CAPABILITY_RESULT_REQUIRED, ()))
+    errors.extend(_enum(obj.get("check"), f"{path}.check", GATE_RESULTS))
+    errors.extend(_enum(obj.get("verify"), f"{path}.verify", GATE_RESULTS))
+    rounds = obj.get("repair_rounds")
+    if not _is_int(rounds) or rounds < 0:
+        errors.append(f"{path}.repair_rounds must be an integer >= 0")
+    errors.extend(_bool(obj.get("replan"), f"{path}.replan"))
+    return errors
+
+
+def _capability_usage(obj: Any, path: str) -> list[str]:
+    errors = _expect_object(obj, path)
+    if errors:
+        return errors
+    errors.extend(_closed_object(obj, path, CAPABILITY_USAGE_REQUIRED, CAPABILITY_USAGE_OPTIONAL))
+    errors.extend(_nonempty_string(obj.get("source"), f"{path}.source"))
+    errors.extend(_enum(obj.get("source_confidence"), f"{path}.source_confidence", SOURCE_CONFIDENCE))
+    for field in CAPABILITY_USAGE_OPTIONAL:
+        if field in obj and obj[field] is not None:
+            errors.extend(_non_negative_number(obj[field], f"{path}.{field}"))
     return errors
 
 

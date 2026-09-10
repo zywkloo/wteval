@@ -86,6 +86,31 @@ class SchemaAgreementTests(unittest.TestCase):
             set(constants.EXPERIMENT_REQUIRED) | set(constants.EXPERIMENT_OPTIONAL),
         )
 
+    def test_capability_run_fields(self) -> None:
+        schema = load("capability-run-v1.schema.json")
+        self.assertEqual(tuple(schema["required"]), constants.CAPABILITY_RUN_REQUIRED)
+        self.assertEqual(
+            set(schema["properties"]),
+            set(constants.CAPABILITY_RUN_REQUIRED) | set(constants.CAPABILITY_RUN_OPTIONAL),
+        )
+        agent = schema["$defs"]["agent"]
+        self.assertEqual(tuple(agent["required"]), constants.AGENT_REQUIRED)
+        task = schema["$defs"]["task"]
+        self.assertEqual(tuple(task["required"]), constants.CAPABILITY_TASK_REQUIRED)
+        self.assertEqual(
+            set(task["properties"]),
+            set(constants.CAPABILITY_TASK_REQUIRED) | set(constants.CAPABILITY_TASK_OPTIONAL),
+        )
+        result = schema["$defs"]["result"]
+        self.assertEqual(tuple(result["required"]), constants.CAPABILITY_RESULT_REQUIRED)
+        usage = schema["$defs"]["usage"]
+        self.assertEqual(tuple(usage["required"]), constants.CAPABILITY_USAGE_REQUIRED)
+        self.assertEqual(
+            set(usage["properties"]),
+            set(constants.CAPABILITY_USAGE_REQUIRED) | set(constants.CAPABILITY_USAGE_OPTIONAL),
+        )
+        self.assertEqual(tuple(schema["properties"]["arm"]["enum"]), constants.ARMS)
+
     def test_enums(self) -> None:
         labels = load("example-v1.schema.json")["$defs"]["labels"]["properties"]
         self.assertEqual(tuple(labels["work_kind"]["enum"]), constants.WORK_KINDS)

@@ -138,6 +138,38 @@ EXPERIMENT_OPTIONAL = ("description", "holdout_fraction")
 
 METRIC_GROUPS = ("classification", "forecast", "recommendation")
 
+ARMS = ("contract", "no_contract")
+
+CAPABILITY_RUN_REQUIRED = (
+    "schema_version",
+    "run_id",
+    "task_id",
+    "created_at",
+    "arm",
+    "agent",
+    "task",
+    "result",
+)
+
+CAPABILITY_RUN_OPTIONAL = ("usage", "notes")
+
+AGENT_REQUIRED = ("endpoint", "model", "config_version")
+
+CAPABILITY_TASK_REQUIRED = (
+    "repository",
+    "base_revision",
+    "oracle_revision",
+    "prompt_fingerprint",
+)
+
+CAPABILITY_TASK_OPTIONAL = ("verification_declared",)
+
+CAPABILITY_RESULT_REQUIRED = ("check", "verify", "repair_rounds", "replan")
+
+CAPABILITY_USAGE_REQUIRED = ("source", "source_confidence")
+
+CAPABILITY_USAGE_OPTIONAL = ("reported_tokens", "subscription_quota_delta")
+
 ID_PATTERN = r"^[A-Za-z0-9][A-Za-z0-9._:-]{1,127}$"
 
 TIMESTAMP_PATTERN = (
