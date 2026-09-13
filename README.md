@@ -28,6 +28,9 @@ Mutation testing injects small faults and checks whether the suite catches them.
 Property-based testing exercises stated invariants over generated inputs. Wteval
 keeps those methods and their experimental evidence outside wtcraft's runtime
 and does not replace the repository's ordinary tests or act as an LLM judge.
+When a finding is semantically ambiguous, a human reviews the evidence—for
+example, separating a real test gap from an equivalent mutant—and decides
+whether to harden the tests, clarify the specification, or accept the behavior.
 
 ## Current priority
 
