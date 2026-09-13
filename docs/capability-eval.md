@@ -1,6 +1,8 @@
 # Capability eval: deterministic-oracle two-arm runs
 
-> Status: planned experiment. Synthetic fixtures only until real runs land.
+> Status: active pilot priority, reviewed 2026-09-11. Task builders and scoring
+> exist; real paired execution is pending. See [MVP plan](mvp-plan.md) for the
+> current order and admission gates.
 >
 > Rationale lives in
 > [wtcraft's agent-capability-eval memo](https://github.com/zywkloo/wtcraft/blob/main/docs/backlogs/agent-capability-eval.md).
@@ -29,10 +31,15 @@ that the change is semantically correct. A weak test is a weak oracle.
 - `contract`: agent runs with a wtcraft task contract.
 - `no_contract`: same prompt, no contract.
 
-Each arm runs 2-3 agent/model configurations. The contract-vs-no-contract
+Start with one fixed agent configuration on 5–10 qualified tasks. Expand to
+at least 30 paired tasks after the pipeline is reliable; add 2–3 configurations
+only after that, as budget permits. The contract-vs-no-contract
 comparison answers the roadmap question wtcraft has kept asking and never
 measured: does the contract change verified outcomes, or only feel tidier?
-A null result is publishable and is not suppressed.
+A null result is publishable and is not suppressed. This measures the combined
+effect of the explicit Scope/Off-limits/Verification intervention; it does not
+isolate document formatting from additional instructions. It also does not
+measure willingness to maintain a protected authorization gate.
 
 ## Schema
 
@@ -66,15 +73,25 @@ Validates every run, groups by arm then agent, writes `report.json` and
 - scope violation rate (Wilson 95% CI)
 - first-pass verified rate (verify pass, zero repair rounds, no replan)
 - mean repair rounds
-- quota per verified task = reported consumption / verified successes
+- quota per verified task = consumption / successes within the same
+  quota-observed cohort, accompanied by coverage and comparable provider units
 
-Runs whose check/verify is `skip` or `unavailable` are excluded from that
-rate's denominator. Report intervals, not point estimates; at N=40 intervals
-are wide.
+The scorer excludes `skip`/`unavailable` from each check/verify rate. Before
+interpreting real runs, report total attempts and scoring coverage beside those
+conditional rates. Keep agent failures/timeouts in attempted completion
+accounting; show infrastructure failures separately. Missing quota remains
+unknown: quota-per-success uses only the quota-observed cohort and reports its
+coverage.
+
+Report paired task differences as well as arm rates and intervals; arm-level
+Wilson intervals alone do not estimate the uncertainty of the paired effect.
+Separate history/mutation results and account for related tasks. At N=30–50,
+intervals may still be wide; do not imply a model ranking they cannot support.
 
 ## Adding real runs
 
-1. Copy a synthetic fixture under `tests/fixtures/runs/`.
+1. Use a synthetic fixture as a shape reference, then create the real record
+   under gitignored `datasets/private/runs/`; do not place real data in fixtures.
 2. Fill `repository` (name only, no local path), `base_revision`, and
    `oracle_revision` from real commits.
 3. Redact or fingerprint the prompt; never commit raw transcripts.
@@ -84,8 +101,20 @@ are wide.
 
 ## Candidate screening
 
-Two scanners build the task set. The unit-granularity scanner is the primary
-one for reaching the 30–50 target.
+History scanners and the mutation seeder produce candidates. Admit each only
+when a frozen buggy start fails and a reference repair passes the same checks
+reproducibly. Revalidate old catalogs missing current baseline/determinism data.
+Exclude failures caused only by broken harness setup, missing dependencies, or
+generated-copy drift. Keep the executable command separate from descriptive
+annotations and verification-unit paths.
+
+Before execution, freeze the scoring contract and tests outside agent-editable
+state; apply the same oracle to both arms, including the arm not shown a task
+contract. Do not expose reference repairs through Git history or shared files.
+Use equal permissions/budgets and randomize or counterbalance execution order.
+
+The unit-granularity history scanner is useful for the 30-task target, but units
+from one commit and mutations of one function remain correlated samples.
 
 ### Verification units (primary)
 
@@ -127,9 +156,12 @@ no unit tests cannot supply ground truth.
 
 ## Go/no-go
 
-Ship the report when:
+A 5–10-task pilot report validates the execution pipeline and may be shared as
+such. Complete the full report when:
 
-- at least 30 tasks ran to a recorded outcome in both arms;
+- at least 30 qualified tasks ran to a recorded outcome in both arms;
+- historical and mutation results, paired differences, related-task clusters,
+  attempts, scoring coverage, and usage missingness are visible;
 - the oracle pass/fail reproduced on a re-run of the same revision;
 - limitations state sample size, single-codebase provenance, and the
   weak-test-weak-oracle caveat;

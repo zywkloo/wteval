@@ -4,6 +4,7 @@
   "task_id": "cap-task-002",
   "created_at": "2026-07-10T12:07:00Z",
   "arm": "no_contract",
+  "repetition": 1,
   "agent": { "endpoint": "claude", "model": "opus-5", "config_version": "cfg-a" },
   "task": {
     "repository": "python-cli",

@@ -1,91 +1,72 @@
 # wteval
 
-> Offline evaluation lab for wtcraft's quota-aware coding-agent advisor.
+> Offline lab for reproducible coding-agent capability evaluation.
 >
-> Status: planning docs plus a stdlib evaluation toolkit — advisor-eval batch
-> runner, deterministic-oracle capability runner, mutation testing, and
-> property-based testing. No runtime, router, daemon, GUI, or
-> LangChain/LangGraph integration exists in this folder.
+> Status, reviewed 2026-09-11: executable stdlib evaluation tools and task
+> builders; the real contract/no-contract executor is not yet connected.
+> Advisor evaluation remains a downstream, deferred experiment.
 
-Wteval exists to answer whether a proposed advisor is actually useful:
+The immediate question is whether an explicit wtcraft task contract changes
+verified coding outcomes. The experiment scores frozen tasks with deterministic
+scope and test checks, without a judge model. A passing oracle establishes only
+that the declared checks passed; test adequacy must be assessed separately.
 
-```text
-Given a coding task, repository state, configured agent/model routes, and
-subscription headroom, can we recommend the next role and execution route
-better than simple rules or a fixed default—and prove it against later
-verification outcomes?
-```
+## Design principle: test the tests
 
-The runtime feature, if the evidence supports building it, belongs in
-[wtcraft](https://github.com/zywkloo/wtcraft/blob/main/docs/backlogs/quota-aware-task-planning.md). TokenTracker
-is the preferred telemetry and existing quota-visibility surface. wtflow was a
-candidate to render a small, distinct Quota Cat overlay with a cat and a few
-quota jars, but it is paused while its worktree-based Git control GUI shell is
-evaluated; it must not recreate TokenTracker's dashboard, widgets, or general
-usage pet. Wteval owns
-only datasets, experiments, calibration, and reports. Those artifacts live in
-this sibling repository, not in a public `wtcraft/eval/` tree. Personal
-dogfood labels stay gitignored under `datasets/private/`. See
-[lab boundary](docs/lab-boundary.md).
+The Planner side of [wtcraft](https://github.com/zywkloo/wtcraft) can use an LLM
+to inspect a repository and propose task-specific acceptance commands. The
+implementing agent does not grade itself: `wtcraft verify` runs those exact
+commands and records their exit codes through a language-agnostic shell runner.
 
-A second, standalone experiment lives here too: deterministic-oracle
-capability eval — does a wtcraft task contract change verified outcomes? —
-scored by `wtcraft check/verify` instead of a judge model. Its task-set
-builders and mutation/PBT instruments are covered in
-[capability eval](docs/capability-eval.md) and [mutation & PBT](docs/mutation-pbt.md).
+Mechanical execution is necessary, but it is not proof that the proposed checks
+are complete, stable, or semantically correct. That is wteval's boundary:
 
-## Current decision
+> `wtcraft verify` asks whether the declared checks passed; `wteval` asks whether
+> those checks can detect defects.
 
-Do not build wteval as any of the following:
+Mutation testing injects small faults and checks whether the suite catches them.
+Property-based testing exercises stated invariants over generated inputs. Wteval
+keeps those methods and their experimental evidence outside wtcraft's runtime
+and does not replace the repository's ordinary tests or act as an LLM judge.
 
-- a PR reviewer or cross-agent review loop;
-- a token dashboard or local-session parser;
-- a universal LLM gateway or subscription router;
-- an agent launcher, ACP adapter, or worktree manager;
-- a generic trace/evaluation dashboard.
+## Current priority
 
-The old review, session-capture, usage-dashboard, and generic-eval surfaces are
-already crowded. The new preflight-advisor micro-category is different: it has
-clear concept overlap but little demonstrated adoption. TokenSize describes
-most of the proposed user experience, while CodeRoute and experimental routers
-classify coding work and adapt from repository/execution feedback; their public
-signals do not establish a mature market or meaningful user base.
+Follow [the MVP plan](docs/mvp-plan.md): correct measurement and run identity,
+qualify 5–10 tasks, run both arms with one fixed agent configuration, then expand
+to at least 30 qualified paired tasks and publish a report. Existing synthetic
+reports and task candidates do not establish a contract benefit, model ranking,
+or quota savings.
 
-This changes the bar. TokenTracker already ships the polished dashboard,
-menu-bar, widgets, quota views, achievements, and desktop-pet surface. The
-remaining experiment is a separate prompt-aware decision layer plus a small
-distinct visual language: consume structured facts, recommend a route, reserve
-verification/repair capacity, and show that state through a cat and a few jars.
+The lab already has schemas, validators, deterministic advisor baselines,
+capability report generation, history/mutation task builders, and mutation/PBT
+instruments. The remaining execution work is workspace preparation, live scoring,
+and a bounded runner connection. [Executor status](docs/executor.md) distinguishes
+implemented interfaces from planned execution.
 
 ## Project boundary
 
 | Component | Owns |
 | --- | --- |
-| `wtcraft advise` | Preflight classification, quota forecast, route recommendation, reason codes, decision record, and later outcome attachment. |
-| `wtflow` | **Paused.** Worktree-based Git control GUI shell (SourceGit fork) under evaluation; its candidate instruction enable/disable and minimal Quota Cat overlay/advice rendering are on hold. No duplicate quota dashboard. |
-| `wteval` | Labeled task datasets, deterministic baselines, advisor experiments, forecast calibration, routing-policy comparison, and methodology reports. |
-| TokenTracker | Preferred provider/session usage, quota-window, provenance, and existing dashboard/pet surfaces. |
-| Existing agents | Actual planning, execution, verification, and repair. |
+| wtcraft | Local task checks and protected change-authorization tooling; ordinary CI still owns tests at the merge boundary. |
+| wteval | Task datasets, controlled experiments, scoring, calibration, and reports; no production agent runtime. |
+| Existing agents | Actual task implementation; the lab records and independently scores their outputs. |
+| Deferred advisor | A possible future consumer of measured outcomes, subject to the MVP resume gate. |
 
-The advisor may recommend a lifecycle sequence such as `planner -> executor ->
-verifier`; wteval evaluates that recommendation. It never launches the sequence.
+A contract effectiveness result does not establish demand for policy approval
+workflows. Wtcraft validates protected authorization separately. The lab consumes
+existing facts and reports results back; it does not add semantic judgments to
+wtcraft's trusted evidence or create a public `wtcraft/eval/` tree.
 
-## Why keep wteval
+Real tasks, labels, and run records stay gitignored under `datasets/private/`.
+Committed fixtures are synthetic. See [lab boundary](docs/lab-boundary.md).
 
-The remaining research questions are still useful and portfolio-relevant:
+## Deferred research
 
-- Does explicit wtcraft task scope, stage, risk, and verification evidence
-  improve classification over prompt-only routing?
-- Can personal history produce calibrated p50/p90 token and subscription-quota
-  ranges without presenting API-equivalent cost as subscription billing?
-- Does reserving capacity for independent verification and one repair cycle
-  improve verified completion under limited subscription windows?
-- Which choices maximize verified task success per unit of scarce quota?
-- When does a fixed lightweight advisor add enough value to justify its own
-  latency and quota overhead?
-
-The answers may be negative. A negative result is acceptable; inventing a
-product moat or a precise quota forecast is not.
+Advisor classification, route recommendations, quota forecasting, and reserve
+policies remain possible consumers of real run data. Resume only when observed
+quality/usage differences and a recurring decision justify the experiment.
+Do not build a PR reviewer, universal gateway, launcher service, dashboard, GUI,
+or generic trace platform as part of the current capability evaluation.
 
 ## Tools
 
@@ -119,7 +100,12 @@ the mutation gate and seeder (`scripts/run_mutation.py`,
 documented in [capability eval](docs/capability-eval.md) and
 [mutation & PBT](docs/mutation-pbt.md).
 
-## Active documents
+## Documents and planning authority
+
+The MVP plan owns the current execution order; capability eval and executor
+specify its methodology and implementation gaps. Advisor-oriented product,
+architecture, pivot, seams, and ambient UX documents are deferred references,
+not parallel implementation queues.
 
 - [Pivot decision](docs/pivot-decision-2026-08.md) — reasoning, rejected
   hypotheses, remaining wedge, and stop conditions.
@@ -129,7 +115,7 @@ documented in [capability eval](docs/capability-eval.md) and
   offline evaluation design.
 - [Advise seams](docs/advise-seams.md) — composable preflight stages mapped to
   `decision-v1`.
-- [MVP plan](docs/mvp-plan.md) — smallest dogfood vertical slice.
+- [MVP plan](docs/mvp-plan.md) — active pilot/report sequence and deferred advisor reference.
 - [Lab boundary](docs/lab-boundary.md) — why experiments stay here instead of
   public `wtcraft/eval/`.
 - [Harness](docs/harness.md) — schema, metrics, baselines, and batch runner.
@@ -148,10 +134,10 @@ documented in [capability eval](docs/capability-eval.md) and
 
 Safe current description:
 
-> Designed a local-first evaluation plan for a quota-aware coding-agent
-> advisor, including task/role classification, subscription-usage forecasting,
-> human overrides, OpenTelemetry evidence, and calibration against deterministic
-> Git verification outcomes.
+> Built a stdlib evaluation toolkit with schema validation, deterministic
+> baselines, capability reports, history/mutation task builders, and PBT checks.
+> The real paired agent experiment is pending; no measured contract improvement
+> or routing benefit is claimed.
 
 Do not claim a built routing system, production LLM orchestration, external
 adoption, forecast accuracy, or cost savings until measured evidence exists.

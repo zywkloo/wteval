@@ -148,6 +148,7 @@ CAPABILITY_RUN_REQUIRED = (
     "task_id",
     "created_at",
     "arm",
+    "repetition",
     "agent",
     "task",
     "result",
@@ -164,7 +165,12 @@ CAPABILITY_TASK_REQUIRED = (
     "prompt_fingerprint",
 )
 
-CAPABILITY_TASK_OPTIONAL = ("verification_declared", "verification", "origin")
+CAPABILITY_TASK_OPTIONAL = (
+    "verification_declared",
+    "verification_command",
+    "verification_description",
+    "origin",
+)
 
 CAPABILITY_RESULT_REQUIRED = ("check", "verify", "repair_rounds", "replan")
 

@@ -1,7 +1,8 @@
 # Two-arm capability executor (design + stub)
 
 > Status: interface and stub. The agent seam is defined; a real runner is not
-> yet wired.
+> yet wired. Reviewed 2026-09-11; the active implementation order is in
+> [MVP plan](mvp-plan.md).
 
 ## Pipeline
 
@@ -68,5 +69,40 @@ assembling `run_id`.
 - `execute_one()`'s check/verify invocation against a live repo;
 - a real agent runner (Codex/Claude/human).
 
-`--dry-run` (via `scripts/run_executor.py`) is fully working now and prints the
-full expansion.
+`scripts/run_executor.py` currently only expands and writes the schedule; there
+is no `--dry-run` flag and no execution mode. Treat schedule output as a plan,
+not a completed run.
+
+## P0 implementation acceptance
+
+The first three safeguards below are implemented in the schedule/record layer;
+the remaining items are requirements for the bounded real-run adapter:
+
+- The schedule gives each task/arm/endpoint/model/configuration/repetition a
+  stable unique ID and rejects collisions; report loading independently rejects
+  duplicate identities even if their `run_id`s differ.
+- Mutation tasks now store `verification_command` separately from descriptive
+  context. History units retain only an explicit description/path until a known
+  runner materializes an executable command; they must not be passed to a shell.
+- Freeze task, prompt, toolchain, permissions, and budget. Prepare clean isolated
+  workspaces; reference repair commits and shared prior-run state must not be
+  available to the agent. A worktree sharing the full oracle history alone does
+  not meet this requirement.
+- Keep the scoring contract and oracle outside agent-editable state. Score both
+  arms against identical inputs after implementation, regardless of whether the
+  agent was shown the contract. Do not trust a modified test or the agent's own
+  success claim.
+- Distinguish failed checks from failed invocation, timeout, or unavailable
+  tooling. The current zero/nonzero helper cannot express that distinction.
+  Preserve all attempts and diagnostics without making infra errors look like
+  scope violations or dropping them from completion accounting.
+- Record usage with provenance or mark it unavailable. Repair counts reported
+  by the runner must remain attributed; where possible count observable loops.
+- Quota aggregation keeps missing data unknown, uses successes from the same
+  observed cohort, and publishes coverage rather than implying total cost is known.
+- Keep the first pilot to one fixed configuration and 5–10 paired tasks. A
+  bounded experiment adapter or recorded human-assisted run is sufficient;
+  this does not authorize a generic agent launcher/runtime in this repository.
+
+If these requirements need new schema fields, update constants, validators,
+schemas, and agreement tests together. Do not silently repurpose frozen fields.

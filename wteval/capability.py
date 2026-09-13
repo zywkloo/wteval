@@ -24,7 +24,8 @@ def load_runs(root: Path) -> list[dict[str, Any]]:
         raise ValueError(f"no capability run JSON under {root}")
     runs = []
     errors = []
-    seen = set()
+    seen_run_ids = set()
+    seen_identities = set()
     for path in files:
         try:
             obj = json.loads(path.read_text(encoding="utf-8"))
@@ -36,14 +37,35 @@ def load_runs(root: Path) -> list[dict[str, Any]]:
             errors.append(f"{path}:\n{format_errors(item_errors)}")
             continue
         run_id = obj["run_id"]
-        if run_id in seen:
+        if run_id in seen_run_ids:
             errors.append(f"{path}: duplicate run_id {run_id}")
             continue
-        seen.add(run_id)
+        identity = _run_identity(obj)
+        if identity in seen_identities:
+            errors.append(
+                f"{path}: duplicate run identity for task/arm/agent/repetition "
+                f"({obj['task_id']}, {obj['arm']}, {obj['agent']['endpoint']}, "
+                f"{obj['agent']['model']}, {obj['agent']['config_version']}, {obj['repetition']})"
+            )
+            continue
+        seen_run_ids.add(run_id)
+        seen_identities.add(identity)
         runs.append(obj)
     if errors:
         raise ValueError("\n\n".join(errors))
     return runs
+
+
+def _run_identity(run: dict[str, Any]) -> tuple[str, str, str, str, str, int]:
+    agent = run["agent"]
+    return (
+        run["task_id"],
+        run["arm"],
+        agent["endpoint"],
+        agent["model"],
+        agent["config_version"],
+        run["repetition"],
+    )
 
 
 def wilson_interval(success: int, n: int, z: float = 1.96) -> tuple[float, float]:
@@ -81,11 +103,13 @@ def _score_group(runs: list[dict[str, Any]]) -> dict[str, Any]:
         and r["result"]["replan"] is False
     )
     repair = [r["result"]["repair_rounds"] for r in runs]
-    quota = [
-        float(r["usage"]["subscription_quota_delta"])
+    quota_observed = [
+        r
         for r in runs
         if (r.get("usage") or {}).get("subscription_quota_delta") is not None
     ]
+    quota = [float(r["usage"]["subscription_quota_delta"]) for r in quota_observed]
+    quota_verified = sum(1 for r in quota_observed if r["result"]["verify"] == "pass")
     return {
         "n": len(runs),
         "verify_pass": _rate(verify_pass, len(verify_scored)),
@@ -93,8 +117,10 @@ def _score_group(runs: list[dict[str, Any]]) -> dict[str, Any]:
         "first_pass": _rate(first_pass, len(verify_scored)),
         "mean_repair_rounds": (sum(repair) / len(repair)) if repair else None,
         "quota_consumed": sum(quota),
-        "quota_per_verified_task": (sum(quota) / verify_pass) if verify_pass > 0 else None,
+        "quota_per_verified_task": (sum(quota) / quota_verified) if quota_verified > 0 else None,
         "n_quota_reported": len(quota),
+        "quota_coverage": len(quota_observed) / len(runs) if runs else None,
+        "n_quota_verified": quota_verified,
     }
 
 
@@ -132,7 +158,7 @@ def write_capability_report(
             "The deterministic oracle proves the declared verification passed, not that the change is semantically correct.",
             "Two-arm comparison is only valid when both arms actually executed the same frozen task (controlled replay).",
             "Small samples produce wide intervals; report intervals, not point estimates.",
-            "Quota per verified task uses only runs with reported quota.",
+            "Quota per verified task uses successes from the same quota-observed cohort; missing quota is unknown.",
             "Personal run data must stay in datasets/private/.",
         ],
     }
@@ -188,8 +214,12 @@ def _render_group(name: str, group: dict[str, Any]) -> str:
     if group["quota_per_verified_task"] is not None:
         lines.append(
             f"- quota per verified task: `{group['quota_per_verified_task']:.4f}` "
-            f"(from {group['n_quota_reported']} quota-reported runs)"
+            f"(from {group['n_quota_verified']} verified of {group['n_quota_reported']} quota-reported runs; "
+            f"coverage `{group['quota_coverage']:.1%}`)"
         )
     else:
-        lines.append("- quota per verified task: null (no verified runs)")
+        lines.append(
+            "- quota per verified task: null (no quota-observed verified runs; "
+            f"coverage `{group['quota_coverage']:.1%}`)"
+        )
     return "\n".join(lines)

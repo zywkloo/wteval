@@ -232,6 +232,9 @@ def validate_capability_run(obj: Any, path: str = "$") -> list[str]:
     errors.extend(_nonempty_string(obj.get("task_id"), f"{path}.task_id"))
     errors.extend(_timestamp(obj.get("created_at"), f"{path}.created_at"))
     errors.extend(_enum(obj.get("arm"), f"{path}.arm", ARMS))
+    repetition = obj.get("repetition")
+    if not _is_int(repetition) or repetition < 1:
+        errors.append(f"{path}.repetition must be an integer >= 1")
     errors.extend(_capability_agent(obj.get("agent"), f"{path}.agent"))
     errors.extend(_capability_task(obj.get("task"), f"{path}.task"))
     errors.extend(_capability_result(obj.get("result"), f"{path}.result"))
@@ -264,8 +267,10 @@ def _capability_task(obj: Any, path: str) -> list[str]:
     errors.extend(_nonempty_string(obj.get("prompt_fingerprint"), f"{path}.prompt_fingerprint"))
     if "verification_declared" in obj and obj["verification_declared"] is not None:
         errors.extend(_bool(obj["verification_declared"], f"{path}.verification_declared"))
-    if "verification" in obj and obj["verification"] is not None:
-        errors.extend(_nonempty_string(obj["verification"], f"{path}.verification"))
+    if "verification_command" in obj and obj["verification_command"] is not None:
+        errors.extend(_nonempty_string(obj["verification_command"], f"{path}.verification_command"))
+    if "verification_description" in obj and obj["verification_description"] is not None:
+        errors.extend(_nonempty_string(obj["verification_description"], f"{path}.verification_description"))
     if "origin" in obj and obj["origin"] is not None:
         errors.extend(_enum(obj.get("origin"), f"{path}.origin", TASK_ORIGINS))
     return errors

@@ -41,12 +41,13 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--tasks", required=True, nargs="+", help="seed-tasks.json files or dirs")
     parser.add_argument("--agents", required=True, help="JSON list of {endpoint, model, config_version}, or a file")
+    parser.add_argument("--repetitions", type=int, default=1, help="Runs per task/arm/agent; default 1")
     parser.add_argument("--out", default=None, help="Write schedule JSON here; default stdout")
     args = parser.parse_args()
 
     tasks = _load_tasks(args.tasks)
     agents = _load_agents(args.agents)
-    schedule = build_schedule(tasks, agents)
+    schedule = build_schedule(tasks, agents, repetitions=args.repetitions)
     payload = {"schema_version": 1, "n_runs": len(schedule), "schedule": schedule}
 
     text = json.dumps(payload, indent=2)

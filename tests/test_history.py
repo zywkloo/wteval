@@ -28,7 +28,10 @@ class HistoryTests(unittest.TestCase):
         self.assertEqual(task["task"]["repository"], "wtcraft")
         self.assertEqual(task["task"]["base_revision"], "base1")
         self.assertEqual(task["task"]["oracle_revision"], "oracle1")
-        self.assertEqual(task["task"]["verification"], "tests/contracts/policy-envelope/authorized-change")
+        self.assertEqual(
+            task["task"]["verification_description"],
+            "History verification unit: tests/contracts/policy-envelope/authorized-change",
+        )
         self.assertEqual(task["task"]["origin"], "history")
         self.assertEqual(task["verification_unit"]["kind"], "contract_case")
 

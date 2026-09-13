@@ -1,9 +1,109 @@
-# MVP plan: TokenTracker-backed advisor, Quota Cat overlay, and offline proof
+# MVP plan: real paired capability runs and a reproducible report
 
-> Status: proposed dogfood sequence. Runtime work belongs in wtcraft (wtflow is paused while its worktree-based Git GUI shell is evaluated);
-> evaluation work belongs here.
+> Status: active execution plan, reviewed 2026-09-11. This plan supersedes the
+> advisor-first delivery order. The prior advisor sequence is retained below
+> as deferred reference; it does not schedule runtime work in wtcraft.
 
-## MVP outcome
+## Outcome and current boundary
+
+Produce a real contract/no-contract pilot, then a report covering at least 30
+qualified paired tasks. Measure whether explicit task contracts change verified
+outcomes. Wtcraft's protected authorization adoption is a separate question and
+release track; neither a positive nor a null contract result settles it.
+
+The stdlib validators, baselines, report writers, task builders, mutation/PBT,
+and schedule/record interfaces exist. Worktree preparation, live check/verify
+capture, and a real runner are not yet connected. The 2026-09-11 local full
+suite passed, including 54 unit tests and additional smoke checks; this is
+harness validation, not evidence of agent or product effectiveness.
+
+## P0 — correct measurement and qualify a small task set
+
+- [x] Preserve missing usage as unknown. Use consumption and successes from the
+  same quota-observed cohort, report coverage, and never combine incompatible
+  provider/window units. Current scoring can show zero cost for missing data.
+- [x] Make run identity unique across task, arm, endpoint, model, configuration,
+  and repetition; reject collisions before execution or writing records.
+- [ ] Separate runnable verification commands from descriptions and test paths.
+  Mutation records now separate the executable command from descriptive context;
+  history units still need a known runner to materialize a command.
+  Materialize history verification units through a known runner instead of
+  attempting to execute directories or mutation annotations as shell commands.
+- [ ] Rebuild or revalidate existing candidate artifacts using the current
+  baseline/determinism checks. A scanner match or killed mutant is a candidate,
+  not an admitted task. Check for harness failures and generated-copy drift.
+- [ ] Admit 5–10 tasks whose buggy state fails and reference repair passes the
+  same frozen oracle reproducibly. Record exclusions and task origin. Keep
+  mutation families and history units from one commit identifiable as clusters.
+
+Exit: the initial task set has runnable commands and reproducible admission
+records; metric and identity regressions have focused tests. Any schema changes
+update constants, validators, schemas, and agreement tests together.
+
+## P0 — execute one fixed configuration in both arms
+
+- [ ] Connect the bounded executor described in [executor.md](executor.md):
+  prepare an isolated workspace, invoke one configured agent or a recorded
+  human-assisted run, collect outcomes, and persist records.
+- [ ] Freeze prompt, base revision, toolchain, permissions, and budget. Randomize
+  or counterbalance arm order. Keep scope and verification scoring identical;
+  only the contract arm receives the explicit contract intervention.
+- [ ] Keep the scoring contract and oracle outside agent-editable state. Re-score
+  submitted changes with trusted inputs. Both arms receive the same task setup;
+  neither may obtain reference repairs through files, Git history, or shared state.
+- [ ] Complete 5–10 qualified tasks in both arms with one fixed configuration.
+  Record wall time, failures, timeouts, repairs, and available usage. A missing
+  quota adapter does not block success/scope measurement.
+- [ ] Report all attempted runs, scoring coverage, and paired outcomes. Separate
+  infrastructure errors from agent failures and never silently drop either.
+
+Exit: a reproducible pilot report and traceable per-run evidence. The existing
+ManualRunner stub or synthetic records do not satisfy this gate. Build only
+what this experiment needs; no general launcher, router, or scheduling service.
+
+## P1 — expand and publish the result
+
+- [ ] Reach at least 30 qualified tasks with both arms recorded. Add 2–3 agent
+  configurations only after the single-configuration pipeline is reliable.
+- [ ] Report historical and mutation tasks separately. Show paired differences,
+  discordant task outcomes, uncertainty, related-task clusters, failures, and
+  missingness. Do not treat correlated mutants as independent real-world tasks.
+- [ ] State sample size, single-codebase provenance where applicable, and the
+  weak-test/weak-oracle limitation. Verified success means the declared tests
+  passed, not semantic correctness.
+- [ ] Keep real data private. Publish methodology and a privacy-reviewed
+  aggregate report; wtcraft receives the contract-arm finding and report link.
+
+Exit: evidence supports continuing, narrowing, or stopping. An early pilot or
+negative finding may be reported before N=30 when labeled accordingly; it is
+not the full experiment completion gate.
+
+## P2 — only improvements demanded by the results
+
+Improve oracle coverage, task diversity, or run reliability when failure analysis
+shows a specific need. Do not expand the mutation/PBT framework for its own sake.
+Additional providers, visualization backends, and telemetry integrations need a
+measurement question the existing files cannot answer.
+
+## Advisor resume gate
+
+Advisor work remains deferred until real outcomes show repeatable, potentially
+useful differences between routes, observed usage is sufficient for the intended
+claims, and a recurring user decision needs help. A quota forecast additionally
+requires calibrated held-out observations. Missing quota does not become a
+forecast through API-price conversion.
+
+The advisor phases below require a new explicit prioritization decision after
+that gate. Their product-readiness requirements apply to advisor claims, not to
+the capability pilot. GUI, quota prediction, and advisor runtime are not current
+experiment dependencies.
+
+## Deferred advisor reference
+
+The earlier sequence is preserved for context. All phases in this section are
+unscheduled; the active order above takes precedence.
+
+### MVP outcome
 
 The developer keeps TokenTracker as the existing subscription dashboard and
 heavy desktop companion. Quota Cat adds a small distinct cat-and-jars overlay,
@@ -27,7 +127,7 @@ pretend it can intercept prompts typed into arbitrary third-party clients.
 TokenTracker never receives the prompt. Manual task feeding remains a fallback
 for unsupported surfaces and debugging, not the intended daily path.
 
-## Phase 0 — demand, baseline, and data gate
+### Deferred advisor phase 0 — demand, baseline, and data gate
 
 - Try TokenSize preview on a small, non-sensitive opt-in prompt set.
 - Run the distinct open-source CodeRouter `route --json` command as a local
@@ -42,10 +142,10 @@ Exit: confirm that the developer repeatedly wants the recommendation, identify
 a measurable question existing prototypes do not already answer, and verify
 that usable outcome data exists—or stop the standalone concept.
 
-## Phase 1 — schemas and labeled dataset
+### Deferred advisor phase 1 — schemas and labeled dataset
 
 The v1 schema, synthetic fixtures, deterministic baselines, and batch runner
-are sketched in this repository. Real labeled tasks are still the gate.
+are implemented. Human-reviewed labels and real outcomes are still the gate.
 
 - Freeze decision/outcome schema v1.
 - Human-label work kind, size, risk, and intended role sequence.
@@ -55,7 +155,7 @@ are sketched in this repository. Real labeled tasks are still the gate.
 
 Exit: label definitions are consistent and at least 30 examples are usable.
 
-## Phase 2 — `wtcraft advise` dry run
+### Deferred advisor phase 2 — `wtcraft advise` dry run
 
 - Accept prompt/stdin and emit human plus JSON output.
 - Read task contract, stage, Git summary, role preferences, and endpoint
@@ -67,7 +167,7 @@ Exit: label definitions are consistent and at least 30 examples are usable.
 Exit: output is deterministic when the LLM path is disabled and no missing
 source is fabricated.
 
-## Phase 3 — fixed async advisor
+### Deferred advisor phase 3 — fixed async advisor
 
 - Add configured `advisor` role after role-models v2 is stable.
 - Use an Agy/Gemini Flash-class route first with ordered configured fallback.
@@ -80,7 +180,7 @@ source is fabricated.
 Exit: all outputs validate; recursive self-routing is impossible; failures
 degrade to deterministic/manual advice.
 
-## Phase 4 — instruction integration and Quota Cat overlay
+### Deferred advisor phase 4 — instruction integration and Quota Cat overlay
 
 - Keep TokenTracker as the dashboard, menu-bar, widget, and desktop-pet
   surface. Do not rebuild those features in wtflow.
@@ -107,7 +207,7 @@ blocks a prompt, preserves TokenTracker's no-prompt boundary, distinguishes
 instruction state from quota state, and remains understandable with animation
 disabled.
 
-## Phase 5 — forecast and reservation
+### Deferred advisor phase 5 — forecast and reservation
 
 - Start with bucketed personal p50/p90 estimates.
 - Predict reported tokens and subscription quota delta separately.
@@ -118,7 +218,7 @@ disabled.
 Exit: forecasts are calibrated enough to be more informative than a wide
 uninformative interval and never imply subscription billing precision.
 
-## Phase 6 — outcome loop and public report
+### Deferred advisor phase 6 — outcome loop and public report
 
 - Attach actual route, usage observation, check/verify result, repair rounds,
   and human completion.
@@ -130,7 +230,7 @@ uninformative interval and never imply subscription billing precision.
 Exit: evidence supports continuing, narrowing, or stopping. A polished demo is
 not a substitute for the report.
 
-## MVP exclusions
+### MVP exclusions
 
 - agent launch or automatic account switching;
 - a provider gateway or billing service;
@@ -144,7 +244,7 @@ not a substitute for the report.
 - team SaaS, cloud synchronization, or multi-device state;
 - claims that an unexecuted route would have succeeded.
 
-## Resume gate
+### Advisor product-readiness gate
 
 Implementation beyond the first vertical slice requires:
 

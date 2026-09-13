@@ -30,7 +30,8 @@ def _task(task_id: str, origin: str) -> dict:
             "oracle_revision": "oracle-sha-1",
             "prompt_fingerprint": f"test:{origin}:{task_id}",
             "verification_declared": True,
-            "verification": "bash tests/run_all.sh",
+            "verification_command": "bash tests/run_all.sh",
+            "verification_description": "Synthetic mutation test oracle.",
             "origin": origin,
         },
     }
@@ -48,9 +49,21 @@ class ExecutorTests(unittest.TestCase):
         self.assertEqual(len({e["task_id"] for e in schedule}), 2)
 
     def test_safe_run_id_strips_invalid_chars(self) -> None:
-        run_id = safe_run_id("mut-001-eq->ne", "contract", "codex")
+        run_id = safe_run_id("mut-001-eq->ne", "contract", self.agents[0], 1)
         self.assertNotIn(">", run_id)
-        self.assertTrue(run_id.startswith("mut-001-eq-ne-contract-codex"))
+        self.assertTrue(run_id.startswith("cap-mut-001-eq--ne-contract-r1-"))
+
+    def test_schedule_identity_includes_model_config_and_repetition(self) -> None:
+        task = _task("mut-001-eq->ne", "mutation")
+        schedule = build_schedule([task], self.agents[:1], repetitions=2)
+        self.assertEqual(len(schedule), 4)
+        self.assertEqual(len({entry["run_id"] for entry in schedule}), 4)
+        self.assertEqual({entry["repetition"] for entry in schedule}, {1, 2})
+
+    def test_schedule_rejects_duplicate_task_identity(self) -> None:
+        task = _task("mut-001-eq->ne", "mutation")
+        with self.assertRaisesRegex(ValueError, "duplicate run identities"):
+            build_schedule([task, task], self.agents[:1])
 
     def test_gate_result_maps_exit_codes(self) -> None:
         self.assertEqual(gate_result(0), "pass")
@@ -68,6 +81,7 @@ class ExecutorTests(unittest.TestCase):
         )
         self.assertEqual(record["result"]["check"], "pass")
         self.assertEqual(record["result"]["verify"], "fail")
+        self.assertEqual(record["repetition"], 1)
         self.assertEqual(validate_capability_run(record), [])
 
     def test_manual_runner_returns_no_usage(self) -> None:

@@ -10,7 +10,7 @@ from typing import Any
 
 
 def build_task(unit: dict[str, Any], index: int) -> dict[str, Any]:
-    verification = unit["verification"]
+    verification_path = unit["verification"]
     return {
         "task_id": f"hist-{index:03d}-{unit['kind']}",
         "origin": "history",
@@ -18,12 +18,12 @@ def build_task(unit: dict[str, Any], index: int) -> dict[str, Any]:
             "repository": unit["repo"],
             "base_revision": unit["base_sha"],
             "oracle_revision": unit["oracle_sha"],
-            "prompt_fingerprint": f"history:{unit['kind']}:{verification}",
+            "prompt_fingerprint": f"history:{unit['kind']}:{verification_path}",
             "verification_declared": True,
-            "verification": verification,
+            "verification_description": f"History verification unit: {verification_path}",
             "origin": "history",
         },
-        "verification_unit": {"kind": unit["kind"], "path": verification},
+        "verification_unit": {"kind": unit["kind"], "path": verification_path},
         "subject": unit["subject"],
         "author_date": unit["author_date"],
     }

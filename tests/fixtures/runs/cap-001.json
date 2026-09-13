@@ -4,6 +4,7 @@
   "task_id": "cap-task-001",
   "created_at": "2026-07-10T12:00:00Z",
   "arm": "contract",
+  "repetition": 1,
   "agent": { "endpoint": "codex", "model": "gpt-5.5", "config_version": "cfg-a" },
   "task": {
     "repository": "python-cli",
